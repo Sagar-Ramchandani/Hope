@@ -1,6 +1,5 @@
 import numpy as np
 from pprint import pprint
-import matplotlib.pyplot as plt
 '''For board representation I use piece centric approach
 using a Bitmap.
 The positions are to be thought of using vectors in 2D space
@@ -106,4 +105,41 @@ pieces=pieceSetup(*standardPos)
 convertBoardCentric(pieces)
 
 class MovePatterns:
-    pawn=[np.array([1,0])]
+    def __init__(self):
+        dirKing=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+        dirQueen=[]
+        for j in dirKing:
+            for i in range(1,8):
+                dirQueen.append((i*j[0],i*j[1]))
+        plusDir=[(-1,0),(1,0),(0,-1),(0,1)]
+        plusRook=[]
+        for j in plusDir:
+            for i in range(1,8):
+                plusRook.append((i*j[0],i*j[1]))
+        crossDir=[(-1,-1),(1,1),(-1,1),(1,-1)]
+        crossBishop=[]
+        for j in crossDir:
+            for i in range(1,8):
+                crossBishop.append((i*j[0],i*j[1]))
+        dirKnight=[(2,1),(2,-1),(-2,1),(-2,-1),(1,2),(-1,2),(1,-2),(-1,-2)]
+ 
+        '''
+        NOTE: Pawn En Passant is the same as regular pawn but can only
+        be activated under certain checks
+        '''
+        self.pawnW=[np.array(pos) for pos in [(0,1),(-1,1),(1,1)]
+        self.pawnWf=[np.array(pos) for pos in [(0,1),(-1,1),(1,1),(0,2)]]
+        self.pawnB=[np.array(pos) for pos in [(0,-1),(-1,-1),(1,-1)]
+        self.pawnBf=[np.array(pos) for pos in [(0,-1),(-1,-1),(1,-1),(0,-2)]]
+
+        '''
+        CASTLING: Note that there are two pieces moving at once and 
+        thus this needs to be reflected in the code
+        '''
+        self.king=[np.array(pos) for pos in dirKing]
+        self.queen=[np.array(pos) for pos in dirQueen]
+        self.rook=[np.array(pos) for pos in plusRook]
+        self.bishop=[np.array(pos) for pos in crossBishop]
+        self.knight=[np.array(pos) for pos in dirKnight]
+
+moves=MovePatterns()
