@@ -1,10 +1,13 @@
 import numpy as np
 from pprint import pprint
+
 '''For board representation I use piece centric approach
 using a Bitmap.
 The positions are to be thought of using vectors in 2D space
 The mapping is A-H maps as 0-7 X axis
 1-8 maps as 0-7 Y Axis
+
+Also as a backup is a board centric approach
 '''
 
 '''
@@ -49,7 +52,11 @@ def fenToBoardCentric(fenString):
         currentPos+=np.array([-8,-1])
     #pprint(board)
     return board
-
+'''
+This is partial support at the moment. 
+Need to add support for states such as 
+castling, enPassant and turns
+'''
 def boardCentrictoFEN(currentBoard):
     fenString=''
     for i in range(len(currentBoard)):
@@ -80,46 +87,24 @@ def convertBoardCentric(pieces):
     return board
 
 def convertPieceCentric(board):
-    currentPieces=[P,p,N,n,B,b,R,r,Q,q,K,k,Kc,kc,Rc,rc,Pf,pf,Pe,pe]=[[] for i in range(20)]
-    for i in range(8):
-        for j in range(8):
+    currentPieces=[]
+    for i in range(len(board)):
+        for j in range(len(board[0])):
             pieceType=board[i][j]
             if pieceType!=0:
-                command=pieceType+".append(("+str(j)+","+str(i)+"))"
-                eval(command)
-    pieces=pieceSetup(*currentPieces)
+                currentPieces.append((np.array([j,i]),pieceToBinary[pieceType]))
+    pieces=pieceSetup(currentPieces)
     return pieces
 
 class pieceSetup:
-    def __init__(self,P,p,N,n,B,b,R,r,Q,q,K,k,Kc,kc,Rc,rc,Pf,pf,Pe,pe):
-        '''
-        NOTE: Need to refactor this to only use the variables of whitePieces and blackPieces
-        and to elimiate all the different variables that are not of use
-        '''
-        self.pawnW=[(np.array(i),0b00000) for i in P]
-        self.pawnB=[(np.array(i),0b10000) for i in p]
-        self.knightW=[(np.array(i),0b00001) for i in N]
-        self.knightB=[(np.array(i),0b10001) for i in n]
-        self.bishopW=[(np.array(i),0b00010) for i in B]
-        self.bishopB=[(np.array(i),0b10010) for i in b]
-        self.rookW=[(np.array(i),0b00011) for i in R]
-        self.rookB=[(np.array(i),0b10011) for i in r]
-        self.queenW=[(np.array(i),0b00100) for i in Q]
-        self.queenB=[(np.array(i),0b10100) for i in q]
-        self.kingW=[(np.array(i),0b00101) for i in K]
-        self.kingB=[(np.array(i),0b10101) for i in k]
-        self.kingCW=[(np.array(i),0b00111) for i in Kc]
-        self.kingCB=[(np.array(i),0b10111) for i in kc]
-        self.rookCW=[(np.array(i),0b01000) for i in Rc]
-        self.rookCB=[(np.array(i),0b11000) for i in rc]
-        self.pawnWf=[(np.array(i),0b01001) for i in Pf]
-        self.pawnBf=[(np.array(i),0b11001) for i in pf]
-        self.pawnWe=[(np.array(i),0b01010) for i in Pe]
-        self.pawnBe=[(np.array(i),0b11010) for i in pe]
-        self.whitePieces=[*self.pawnW,*self.knightW,*self.bishopW,*self.rookW,*self.queenW,*self.kingW,
-                *self.kingCW,*self.rookCW,*self.pawnWf,*self.pawnWe]
-        self.blackPieces=[*self.pawnB,*self.knightB,*self.bishopB,*self.rookB,*self.queenB,*self.kingB,
-                *self.kingCB,*self.rookCB,*self.pawnBf,*self.pawnBe]
+    def __init__(self,currentPieces):
+        self.whitePieces=[]
+        self.blackPieces=[]
+        for position,piece in currentPieces:
+            if piece>>4:
+                self.blackPieces.append((position,piece))
+            else:
+                self.whitePieces.append((position,piece))
         self.pieces=[*self.whitePieces,*self.blackPieces]
 
 class MovePatterns:
@@ -167,5 +152,3 @@ class MovePatterns:
 
 standardBoard=fenToBoardCentric(standardFEN)
 standardPiece=convertPieceCentric(standardBoard)
-
-#moves=MovePatterns()
