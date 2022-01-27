@@ -52,9 +52,31 @@ binaryToPiece={0b00000:"P",0b10000:"p",0b00001:"N",0b10001:"n",0b00010:"B",0b100
  
 pieceToBinary={v:k for k,v in binaryToPiece.items()}
 
+def fenToBoardCentric(fenString):
+    board=[[0 for i in range(8)] for i in range(8)]
+    initialPos=(-1,7)
+    currentPos=np.array(initialPos)
+    state=fenString.split(' ')
+    pieces,turn,castle,enPassant,halfMove,fullMove=state
+    lines=pieces.split('/')
+    for line in lines:
+        for char in line:
+            if char.isnumeric():
+                currentPos+=int(char)*np.array([1,0])
+            else:
+                currentPos+=np.array([1,0])
+                x,y=currentPos
+                board[y][x]=char
+            #print(char,currentPos)
+        currentPos+=np.array([-8,-1])
+    pprint(board)
+
+standardFEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+fenToBoardCentric(standardFEN)
+
 #Converts to Board Centric View
 def convertBoardCentric(pieces):
-    board=np.zeros((8,8))
     board=[[0 for i in range(8)] for i in range(8)]
     for pos,pieceType in pieces.pieces:
         x,y=pos
@@ -105,8 +127,8 @@ class pieceSetup:
                 *self.kingCB,*self.rookCB,*self.pawnBf,*self.pawnBe]
         self.pieces=[*self.whitePieces,*self.blackPieces]
 
-pieces=pieceSetup(*standardPos)
-convertBoardCentric(pieces)
+#pieces=pieceSetup(*standardPos)
+#convertBoardCentric(pieces)
 
 class MovePatterns:
     def __init__(self):
@@ -132,9 +154,9 @@ class MovePatterns:
         NOTE: Pawn En Passant is the same as regular pawn but can only
         be activated under certain checks
         '''
-        self.pawnW=[np.array(pos) for pos in [(0,1),(-1,1),(1,1)]
+        self.pawnW=[np.array(pos) for pos in [(0,1),(-1,1),(1,1)]]
         self.pawnWf=[np.array(pos) for pos in [(0,1),(-1,1),(1,1),(0,2)]]
-        self.pawnB=[np.array(pos) for pos in [(0,-1),(-1,-1),(1,-1)]
+        self.pawnB=[np.array(pos) for pos in [(0,-1),(-1,-1),(1,-1)]]
         self.pawnBf=[np.array(pos) for pos in [(0,-1),(-1,-1),(1,-1),(0,-2)]]
 
         self.king=[np.array(pos) for pos in dirKing]
@@ -151,4 +173,4 @@ class MovePatterns:
         self.castleKingSide=[np.array(2,0),np.array([-2,0])]
         self.castleQueenSide=[np.array(-2,0),np.array([+3,0])]
 
-moves=MovePatterns()
+#moves=MovePatterns()
