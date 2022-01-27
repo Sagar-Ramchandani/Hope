@@ -75,6 +75,10 @@ def convertPieceCentric(board):
 
 class pieceSetup:
     def __init__(self,P,p,N,n,B,b,R,r,Q,q,K,k,Kc,kc,Rc,rc,Pf,pf,Pe,pe):
+        '''
+        NOTE: Need to refactor this to only use the variables of whitePieces and blackPieces
+        and to elimiate all the different variables that are not of use
+        '''
         self.pawnW=[(np.array(i),0b00000) for i in P]
         self.pawnB=[(np.array(i),0b10000) for i in p]
         self.knightW=[(np.array(i),0b00001) for i in N]
@@ -107,19 +111,20 @@ convertBoardCentric(pieces)
 class MovePatterns:
     def __init__(self):
         dirKing=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+        self.slidingMobility=8
         dirQueen=[]
         for j in dirKing:
-            for i in range(1,8):
+            for i in range(1,self.slidingMobility):
                 dirQueen.append((i*j[0],i*j[1]))
         plusDir=[(-1,0),(1,0),(0,-1),(0,1)]
         plusRook=[]
         for j in plusDir:
-            for i in range(1,8):
+            for i in range(1,self.slidingMobility):
                 plusRook.append((i*j[0],i*j[1]))
         crossDir=[(-1,-1),(1,1),(-1,1),(1,-1)]
         crossBishop=[]
         for j in crossDir:
-            for i in range(1,8):
+            for i in range(1,self.slidingMobility):
                 crossBishop.append((i*j[0],i*j[1]))
         dirKnight=[(2,1),(2,-1),(-2,1),(-2,-1),(1,2),(-1,2),(1,-2),(-1,-2)]
  
@@ -132,14 +137,18 @@ class MovePatterns:
         self.pawnB=[np.array(pos) for pos in [(0,-1),(-1,-1),(1,-1)]
         self.pawnBf=[np.array(pos) for pos in [(0,-1),(-1,-1),(1,-1),(0,-2)]]
 
-        '''
-        CASTLING: Note that there are two pieces moving at once and 
-        thus this needs to be reflected in the code
-        '''
         self.king=[np.array(pos) for pos in dirKing]
         self.queen=[np.array(pos) for pos in dirQueen]
         self.rook=[np.array(pos) for pos in plusRook]
         self.bishop=[np.array(pos) for pos in crossBishop]
         self.knight=[np.array(pos) for pos in dirKnight]
+
+        '''
+        CASTLING: This is now a special move that falls outside the moves 
+        of the king and the rook
+        The first vector is movement of king and second the movement of the rook
+        '''
+        self.castleKingSide=[np.array(2,0),np.array([-2,0])]
+        self.castleQueenSide=[np.array(-2,0),np.array([+3,0])]
 
 moves=MovePatterns()
