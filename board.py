@@ -21,29 +21,7 @@ Rook Can Castle 0b?1000
 Pawn First Move 0b?1001
 Pawn En Passant 0b?1010
 '''
-
-standardPos=(
-        [],
-        [],
-        [(1,0),(6,0)],
-        [(1,7),(6,7)],
-        [(2,0),(5,0)],
-        [(2,7),(5,7)],
-        [],
-        [],
-        [(3,0)],
-        [(3,7)],
-        [],
-        [],
-        [(4,0)],
-        [(4,7)],
-        [(0,0),(7,0)],
-        [(0,7),(7,7)],
-        [(i,1) for i in range(8)],
-        [(i,6) for i in range(8)],
-        [],
-        [],
-        )
+standardFEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 binaryToPiece={0b00000:"P",0b10000:"p",0b00001:"N",0b10001:"n",0b00010:"B",0b10010:"b",
         0b00011:"R",0b10011:"r",0b00100:"Q",0b10100:"q",0b00101:"K",0b10101:"k",
@@ -69,11 +47,28 @@ def fenToBoardCentric(fenString):
                 board[y][x]=char
             #print(char,currentPos)
         currentPos+=np.array([-8,-1])
-    pprint(board)
+    #pprint(board)
+    return board
 
-standardFEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
-fenToBoardCentric(standardFEN)
+def boardCentrictoFEN(currentBoard):
+    fenString=''
+    for i in range(len(currentBoard)):
+        counter=0
+        for j in range(len(i)):
+            char=currentBoard[i][j]
+            if char!=0:
+                if counter!=0:
+                    fenString+=str(counter)
+                fenString+=char
+                counter=0
+            else:
+                counter+=1
+        if counter!=0:
+            fenString+=str(counter)
+        fenString+='/'
+    #We remove the last '/' because we only need it as a spacer
+    fenString=fenString[:-1]
+    return fenString
 
 #Converts to Board Centric View
 def convertBoardCentric(pieces):
@@ -127,9 +122,6 @@ class pieceSetup:
                 *self.kingCB,*self.rookCB,*self.pawnBf,*self.pawnBe]
         self.pieces=[*self.whitePieces,*self.blackPieces]
 
-#pieces=pieceSetup(*standardPos)
-#convertBoardCentric(pieces)
-
 class MovePatterns:
     def __init__(self):
         dirKing=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
@@ -172,5 +164,8 @@ class MovePatterns:
         '''
         self.castleKingSide=[np.array(2,0),np.array([-2,0])]
         self.castleQueenSide=[np.array(-2,0),np.array([+3,0])]
+
+standardBoard=fenToBoardCentric(standardFEN)
+standardPiece=convertPieceCentric(standardBoard)
 
 #moves=MovePatterns()
