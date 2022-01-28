@@ -19,6 +19,12 @@ Bishop 0b?0010
 Rook 0b?0011
 Queen 0b?0100
 King 0b?0101
+
+#Most likely removal of the following states
+#as they are not necessary
+#neither are they defined 
+#in standard notation
+
 King Can Castle 0b?0111
 Rook Can Castle 0b?1000
 Pawn First Move 0b?1001
@@ -51,18 +57,19 @@ def fenToBoardCentric(fenString):
             #print(char,currentPos)
         currentPos+=np.array([-8,-1])
     #pprint(board)
-    return board
+    return (board,turn,castle,enPassant,halfMove,fullMove)
 '''
 This is partial support at the moment. 
 Need to add support for states such as 
 castling, enPassant and turns
 '''
 def boardCentrictoFEN(currentBoard):
+    pieces=currentBoard[0]
     fenString=''
-    for i in range(len(currentBoard)):
+    for i in range(len(pieces)):
         counter=0
-        for j in range(len(i)):
-            char=currentBoard[i][j]
+        for j in range(len(pieces[0])):
+            char=pieces[i][j]
             if char!=0:
                 if counter!=0:
                     fenString+=str(counter)
@@ -75,6 +82,7 @@ def boardCentrictoFEN(currentBoard):
         fenString+='/'
     #We remove the last '/' because we only need it as a spacer
     fenString=fenString[:-1]
+    fenString+=' '.join(currentBoard[1::])
     return fenString
 
 #Converts to Board Centric View
@@ -83,23 +91,26 @@ def convertBoardCentric(pieces):
     for pos,pieceType in pieces.pieces:
         x,y=pos
         board[y][x]=binaryToPiece[pieceType]
-    pprint(board)
-    return board
+    state=pieces.gameState
+    return (board,*state)
 
-def convertPieceCentric(board):
+def convertPieceCentric(currentBoard):
+    board=currentBoard[0]
     currentPieces=[]
     for i in range(len(board)):
         for j in range(len(board[0])):
             pieceType=board[i][j]
             if pieceType!=0:
                 currentPieces.append((np.array([j,i]),pieceToBinary[pieceType]))
-    pieces=pieceSetup(currentPieces)
+    pieces=pieceSetup((currentPieces,*currentBoard[1::]))
     return pieces
 
 class pieceSetup:
-    def __init__(self,currentPieces):
+    def __init__(self,currentGame):
+        currentPieces=currentGame[0]
         self.whitePieces=[]
         self.blackPieces=[]
+        self.gameState=currentGame[1::]
         for position,piece in currentPieces:
             if piece>>4:
                 self.blackPieces.append((position,piece))
@@ -152,3 +163,6 @@ class MovePatterns:
 
 standardBoard=fenToBoardCentric(standardFEN)
 standardPiece=convertPieceCentric(standardBoard)
+standardBoard=convertBoardCentric(standardPiece)
+standardFEN=boardCentrictoFEN(standardBoard)
+print(standardFEN)
