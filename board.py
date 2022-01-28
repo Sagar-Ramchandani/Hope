@@ -31,6 +31,7 @@ Pawn First Move 0b?1001
 Pawn En Passant 0b?1010
 '''
 standardFEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+backupFEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 binaryToPiece={0b00000:"P",0b10000:"p",0b00001:"N",0b10001:"n",0b00010:"B",0b10010:"b",
         0b00011:"R",0b10011:"r",0b00100:"Q",0b10100:"q",0b00101:"K",0b10101:"k",
@@ -66,7 +67,11 @@ castling, enPassant and turns
 def boardCentrictoFEN(currentBoard):
     pieces=currentBoard[0]
     fenString=''
-    for i in range(len(pieces)):
+    '''
+    Please note that range goes from max to min because it has 
+    to follow the FEN definition which has initial point at (7,0)
+    '''
+    for i in range(len(pieces)-1,-1,-1):
         counter=0
         for j in range(len(pieces[0])):
             char=pieces[i][j]
@@ -81,7 +86,7 @@ def boardCentrictoFEN(currentBoard):
             fenString+=str(counter)
         fenString+='/'
     #We remove the last '/' because we only need it as a spacer
-    fenString=fenString[:-1]
+    fenString=fenString[:-1]+' '
     fenString+=' '.join(currentBoard[1::])
     return fenString
 
@@ -166,3 +171,5 @@ standardPiece=convertPieceCentric(standardBoard)
 standardBoard=convertBoardCentric(standardPiece)
 standardFEN=boardCentrictoFEN(standardBoard)
 print(standardFEN)
+print(backupFEN)
+print(standardFEN==backupFEN)
